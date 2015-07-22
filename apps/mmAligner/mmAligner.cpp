@@ -94,9 +94,9 @@ namespace boost_po = boost::program_options;
 
 int main(int argc, char** argv)
 {
-
     boost_po::options_description generic("Generic"); // name of help function
         generic.add_options() //detailed specification of command line interface
+                ("version", "display version")
                 ("help,h", "this help") // this option return boolean variable and is used to print command line help
             ;
 
@@ -116,7 +116,7 @@ int main(int argc, char** argv)
                 ("delY", boost_po::value<bool>()->default_value(false), "Allow deletion of substring y")
                 ("eqMap", boost_po::value<bool>()->default_value(false), "Allow mapping of |x| == |y| > 1")
                 ("maxFn", boost_po::value<std::string>()->default_value("conYX"), "Maximization function [conXY, conYX, joint]")
-                ("cutOff", boost_po::value<double>()->default_value(0.01), "Training threshold")
+                ("cutoff", boost_po::value<double>()->default_value(0.01), "Training threshold")
                 ("printScore", boost_po::value<bool>()->default_value(false), "Report score of each alignment")
                 ("prefixProcess", boost_po::value<std::string>()->default_value(""), "Specify prefix output files")
                 ("nullChar", boost_po::value<std::string>()->default_value("_"), "Null character used")
@@ -138,8 +138,11 @@ int main(int argc, char** argv)
 
     if(vm.count("help"))
     {
-            std::cout << cmdline_options << std::endl;
-            return 1;
+        std::cout << cmdline_options << std::endl;
+        return 1;
+    } else if (vm.count("version")) {
+	    std::cout << "version: 1.0" << std::endl;
+        return 0;    	
     }
 
     try {
@@ -176,7 +179,7 @@ int main(int argc, char** argv)
 		return 2 ;
 	}
 
-	double cutOff=vm["cutOff"].as<double>();
+	double cutOff=vm["cutoff"].as<double>();
 	bool printScore=vm["printScore"].as<bool>();
     std::string prefixProcess=vm["prefixProcess"].as<std::string>();
     std::string nullChar=vm["nullChar"].as<std::string>();

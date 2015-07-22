@@ -60,11 +60,11 @@ USAGE:
    ./m2m-aligner  [--limit] [--errorInFile] [--initProb <long double>]
                   [--init <string>] [--nBest <int>] [--inFormat <l2p|news>]
                   [--sepInChar <string>] [--sepChar <string>] [--nullChar
-                  <string>] [--pProcess <string>] [--pScore] [--cutoff
+                  <string>] [--prefixProcess <string>] [--printScore] [--cutoff
                   <double>] [--maxFn <conXY|conYX|joint>] [--eqMap]
                   [--delY] [--delX] [--maxY <int>] [--maxX <int>]
                   [--alignerIn <string>] [--alignerOut <string>] [-o
-                  <string>] -i <string> [--] [--version] [-h]
+                  <string>] -i <string> [--version] [-h]
 
 
 Where:
@@ -96,10 +96,10 @@ Where:
    --nullChar <string>
      Null character used (default _)
 
-   --pProcess <string>
+   --prefixProcess <string>
      Specify prefix output files
 
-   --pScore
+   --printScore
      Report score of each alignment (default false)
 
    --cutoff <double>
@@ -134,9 +134,6 @@ Where:
 
    -i <string>,  --inputFile <string>
      (required)  Input filename
-
-   --,  --ignore_rest
-     Ignores the rest of the labeled arguments following this flag.
 
    --version
      Displays version information and exits.
