@@ -298,6 +298,11 @@ int main(int argc, char** argv)
 	
 	mmEM myAligner;
 
+	std::string baseName = boost_fs::path(inputFilename).stem().string() ;
+	if (outputFilename == "") {
+		myParam.outputFilename = baseName + "." + myParam.prefixProcess + ".align";
+	}
+
 	if (myParam.alignerIn != "")
 	{
 		// read aligner model from file
@@ -311,7 +316,7 @@ int main(int argc, char** argv)
 		// writing aligner model to file //
 		if (myParam.alignerOut == "")
 		{
-			myParam.alignerOut = myParam.inputFilename + "." + myParam.prefixProcess + ".align.model";
+			myParam.alignerOut = baseName + "." + myParam.prefixProcess + ".align.model";
 		}
 		myAligner.writeAlingerToFile(myParam);
 
@@ -320,11 +325,6 @@ int main(int argc, char** argv)
 		myAligner.readAlignerFromFile(myParam);
 	}
 	printTimeStamp(myParam.startT);
-
-	if (outputFilename == "") {
-		std::string baseName = boost_fs::path(inputFilename).stem().string() ;
-		myParam.outputFilename = baseName + "." + prefixProcess + ".align";
-	}
 
 	// create alignments //
 	myAligner.createAlignments(myParam);
