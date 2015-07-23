@@ -79,6 +79,7 @@
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/version.hpp>
 #include <boost/algorithm/cxx11/any_of.hpp>
+#include <boost/filesystem/path.hpp>
 
 inline void printTimeStamp(time_t startT)
 {
@@ -91,44 +92,45 @@ inline void printTimeStamp(time_t startT)
 }
 
 namespace boost_po = boost::program_options;
+namespace boost_fs = boost::filesystem;
 
 int main(int argc, char** argv)
 {
-    boost_po::options_description generic("Generic"); // name of help function
-        generic.add_options() //detailed specification of command line interface
-                ("version", "display version")
-                ("help,h", "this help") // this option return boolean variable and is used to print command line help
-            ;
+	boost_po::options_description generic("Generic"); // name of help function
+		generic.add_options() //detailed specification of command line interface
+			("version", "display version")
+			("help,h", "this help") // this option return boolean variable and is used to print command line help
+			;
 
-    boost_po::options_description mandatory("Mandatory"); // name of help function
-        mandatory.add_options() //detailed specification of command line interface
-                ("inputFilename,i", boost_po::value<std::string>()->required(), "input file")
-                ;
+	boost_po::options_description mandatory("Mandatory"); // name of help function
+		mandatory.add_options() //detailed specification of command line interface
+			("input,i", boost_po::value<std::string>()->required(), "input file")
+			;
 
-    boost_po::options_description optional("Optional"); // name of help function
-        optional.add_options() //detailed specification of command line interface
-                ("outputFilename,o", boost_po::value<std::string>(), "output file name")
-                ("alignerOut", boost_po::value<std::string>()->default_value(""), "aligner model output filename")
-                ("alignerIn", boost_po::value<std::string>()->default_value(""), "aligner model input filename")
-                ("maxX", boost_po::value<int>()->default_value(2), "Maximum length of substring x")
-                ("maxY", boost_po::value<int>()->default_value(2), "Maximum length of substring y")
-                ("delX", boost_po::value<bool>()->default_value(false), "Allow deletion of substring x")
-                ("delY", boost_po::value<bool>()->default_value(false), "Allow deletion of substring y")
-                ("eqMap", boost_po::value<bool>()->default_value(false), "Allow mapping of |x| == |y| > 1")
-                ("maxFn", boost_po::value<std::string>()->default_value("conYX"), "Maximization function [conXY, conYX, joint]")
-                ("cutoff", boost_po::value<double>()->default_value(0.01), "Training threshold")
-                ("printScore", boost_po::value<bool>()->default_value(false), "Report score of each alignment")
-                ("prefixProcess", boost_po::value<std::string>()->default_value(""), "Specify prefix output files")
-                ("nullChar", boost_po::value<std::string>()->default_value("_"), "Null character used")
-                ("sepChar", boost_po::value<std::string>()->default_value("|"), "Separated character used")
-                ("sepInChar", boost_po::value<std::string>()->default_value(":"), "Separated character used")
-            	("nBest", boost_po::value<int>()->default_value(1), "Generate n-best alignments")
-            	("inFormat", boost_po::value<std::string>()->default_value("news"), "Input file format [l2p, news]")
-            	("initFile", boost_po::value<std::string>()->default_value(""), "Initial mapping (model) filename")
-            	("initProbCut", boost_po::value<long double>()->default_value(0.5), "Cut-off sum prior probability")
-            	("errorInFile", boost_po::value<bool>()->default_value(false), "Keep unaligned item in the output file")
-            	("limitPair", boost_po::value<bool>()->default_value(false), "Limit the alignment pair to used only from the initFile")
-                ;
+	boost_po::options_description optional("Optional"); // name of help function
+		optional.add_options() //detailed specification of command line interface
+			("output,o", boost_po::value<std::string>(), "output file name")
+			("alignerOut", boost_po::value<std::string>()->default_value(""), "aligner model output filename")
+			("alignerIn", boost_po::value<std::string>()->default_value(""), "aligner model input filename")
+			("maxX", boost_po::value<int>()->default_value(2), "Maximum length of substring x")
+			("maxY", boost_po::value<int>()->default_value(2), "Maximum length of substring y")
+			("delX", boost_po::value<bool>()->default_value(false), "Allow deletion of substring x")
+			("delY", boost_po::value<bool>()->default_value(false), "Allow deletion of substring y")
+			("eqMap", boost_po::value<bool>()->default_value(false), "Allow mapping of |x| == |y| > 1")
+			("maxFn", boost_po::value<std::string>()->default_value("conYX"), "Maximization function [conXY, conYX, joint]")
+			("cutoff", boost_po::value<double>()->default_value(0.01), "Training threshold")
+			("printScore", boost_po::value<bool>()->default_value(false), "Report score of each alignment")
+			("prefixProcess", boost_po::value<std::string>()->default_value(""), "Specify prefix output files")
+			("nullChar", boost_po::value<std::string>()->default_value("_"), "Null character used")
+			("sepChar", boost_po::value<std::string>()->default_value("|"), "Separated character used")
+			("sepInChar", boost_po::value<std::string>()->default_value(":"), "Separated character used")
+			("nBest", boost_po::value<int>()->default_value(1), "Generate n-best alignments")
+			("inFormat", boost_po::value<std::string>()->default_value("news"), "Input file format [l2p, news]")
+			("initFile", boost_po::value<std::string>()->default_value(""), "Initial mapping (model) filename")
+			("initProbCut", boost_po::value<long double>()->default_value(0.5), "Cut-off sum prior probability")
+			("errorInFile", boost_po::value<bool>()->default_value(false), "Keep unaligned item in the output file")
+			("limitPair", boost_po::value<bool>()->default_value(false), "Limit the alignment pair to used only from the initFile")
+			;
 
 	boost_po::options_description cmdline_options;
 	cmdline_options.add(generic).add(mandatory).add(optional);
@@ -136,41 +138,41 @@ int main(int argc, char** argv)
 	boost_po::variables_map vm;
 	boost_po::store(boost_po::parse_command_line(argc, argv, cmdline_options), vm);
 
-    if(vm.count("help"))
-    {
-        std::cout << cmdline_options << std::endl;
-        return 1;
-    } else if (vm.count("version")) {
-	    std::cout << "version: 1.0" << std::endl;
-        return 0;    	
-    }
+	if(vm.count("help"))
+	{
+		std::cout << cmdline_options << std::endl;
+		return 1;
+	} else if (vm.count("version")) {
+		std::cout << "version: 1.0" << std::endl;
+		return 0;    	
+	}
 
-    try {
-	    boost_po::notify(vm);
-    } catch (boost_po::error& e) {
-    	std::cout << "Error: " << e.what() << std::endl ;
-    	return 1 ;
-    }
+	try {
+		boost_po::notify(vm);
+	} catch (boost_po::error& e) {
+		std::cout << "Error: " << e.what() << std::endl ;
+		return 1 ;
+	}
 
-    std::string inputFilename=vm["inputFilename"].as<std::string>();
- 
-    std::string outputFilename="";
-    if (vm.count("outputFilename"))
-    {
-		outputFilename=vm["outputFilename"].as<std::string>();
-    }
+	std::string inputFilename=vm["input"].as<std::string>();
 
-    std::string alignerOut=vm["alignerOut"].as<std::string>();
- 
-    std::string alignerIn=vm["alignerIn"].as<std::string>();
- 
-    int maxX=vm["maxX"].as<int>();
-    int maxY=vm["maxY"].as<int>();
-    
-    bool delX=vm["delX"].as<bool>();
-    bool delY=vm["delY"].as<bool>();
+	std::string outputFilename="";
+	if (vm.count("output"))
+	{
+		outputFilename=vm["output"].as<std::string>();
+	}
 
-    bool eqMap=vm["eqMap"].as<bool>();
+	std::string alignerOut=vm["alignerOut"].as<std::string>();
+
+	std::string alignerIn=vm["alignerIn"].as<std::string>();
+
+	int maxX=vm["maxX"].as<int>();
+	int maxY=vm["maxY"].as<int>();
+
+	bool delX=vm["delX"].as<bool>();
+	bool delY=vm["delY"].as<bool>();
+
+	bool eqMap=vm["eqMap"].as<bool>();
 
 	std::array<std::string, 3> allowFnValues = {"conXY", "conYX", "joint"};
 	std::string maxFn=vm["maxFn"].as<std::string>();
@@ -181,8 +183,8 @@ int main(int argc, char** argv)
 
 	double cutOff=vm["cutoff"].as<double>();
 	bool printScore=vm["printScore"].as<bool>();
-    std::string prefixProcess=vm["prefixProcess"].as<std::string>();
-    std::string nullChar=vm["nullChar"].as<std::string>();
+	std::string prefixProcess=vm["prefixProcess"].as<std::string>();
+	std::string nullChar=vm["nullChar"].as<std::string>();
 	std::string sepChar=vm["sepChar"].as<std::string>();
 	std::string sepInChar=vm["sepInChar"].as<std::string>();
 
@@ -198,7 +200,7 @@ int main(int argc, char** argv)
 	bool errorInFile=vm["errorInFile"].as<bool>();
 	bool limitPair=vm["limitPair"].as<bool>();
 	bool nBest=vm["nBest"].as<int>();
-	
+
 	// define program parameters //
 	param myParam;
 	myParam.inputFilename = inputFilename ;
@@ -231,8 +233,8 @@ int main(int argc, char** argv)
 	myParam.errorInFile = errorInFile ;
 	myParam.limitPair = limitPair ;
 
-	cout << "inputFilename" << " : " << inputFilename << endl;
-	cout << "outputFilename" << " : " << outputFilename << endl;
+	cout << "input" << " : " << inputFilename << endl;
+	cout << "output" << " : " << outputFilename << endl;
 	cout << "alignerIn" << " : " << alignerIn << endl;
 	cout << "alignerOut" << " : " << alignerOut << endl;
 	cout << "maxX" << " : " << maxX << endl;
@@ -290,10 +292,6 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if (outputFilename == "") {
-		outputFilename = inputFilename + "." + myParam.prefixProcess + ".align";
-    }
-
 	cout << endl;
 	time(&myParam.startT);
 	cout << "Started at: " << ctime(&myParam.startT) << endl << endl;
@@ -323,11 +321,12 @@ int main(int argc, char** argv)
 	}
 	printTimeStamp(myParam.startT);
 
-	// create alignments //
-	if (myParam.outputFilename == "")
-	{
-		myParam.outputFilename = myParam.inputFilename + "." + myParam.prefixProcess + ".align";
+	if (outputFilename == "") {
+		std::string baseName = boost_fs::path(inputFilename).stem().string() ;
+		myParam.outputFilename = baseName + "." + prefixProcess + ".align";
 	}
+
+	// create alignments //
 	myAligner.createAlignments(myParam);
 	printTimeStamp(myParam.startT);		
 

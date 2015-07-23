@@ -129,10 +129,10 @@ Where:
    --alignerOut <string>
      Aligner model output filename
 
-   -o <string>,  --outputFile <string>
+   -o <string>,  --output <string>
      Output filename
 
-   -i <string>,  --inputFile <string>
+   -i <string>,  --input <string>
      (required)  Input filename
 
    --version
